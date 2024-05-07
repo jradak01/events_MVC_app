@@ -1,0 +1,104 @@
+﻿@using Microsoft.AspNetCore.Http
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+<h1>Eventi za ocijeniti</h1>
+<br />
+
+<form id="podnesi" style="display: none;">
+    <table style="margin-left: 30%;">
+        <td style="width: 140px; padding: 10px;"><input type="text" id="id" class="form-control" disabled></td>
+        <td style="width: 140px; padding: 10px;"><input type="text" id="idEv" class="form-control" disabled></td>
+        <td style="width: 140px; padding: 10px;"><input type="text" id="kor" class="form-control" disabled></td>
+        <td style="width: 140px; padding: 10px;"><input type="number" id="unesiOcj" min="1" max="5" class="form-control"></td>
+        <td style="width: 100px; padding: 10px;"><input class="btn btn-outline-success btn-lg" type="button" onclick="ocjeniEvent()" value="Ocjeni" /></td>
+        <td style="width: 140px; padding: 10px;"><button type="button" class="btn btn-outline-danger btn-lg" onclick="odustani()">Odustajem</button></td>
+    </table>
+</form>
+<div class="table-responsive-sm">
+    <table class="table-light table-hover table-responsive-md col-md-12 flex-md-grow-1" id=" ispis">
+        <thead id="thead" style="height: 40px;">
+            <th>Id</th>
+            <th>Naziv</th>
+            <th>Potvrdeno</th>
+            <th>Ocjena</th>
+        </thead>
+        <tbody id="tbody">
+        </tbody>
+    </table>
+</div>
+<br />
+<script type="text/javascript">
+    'use strict';
+    function appendToTable(data) {
+        console.log(data);
+        for (var i = 0; i < data.length; i++) {
+            var korisnikEvent = data[i];
+            if (@(HttpContextAccessor.HttpContext.Session.GetString("Id"))== korisnikEvent.korisnik) {
+                CreateRow(korisnikEvent.idKorisnikEvent, korisnikEvent.event, korisnikEvent.korisnik, korisnikEvent.potvrdeno, korisnikEvent.recenzija);
+            }
+        }
+    }
+    function odustani() {
+        let forma = document.getElementById("podnesi");
+        forma.style.display = "none";
+    }
+    function timedRefresh(time) {
+        setTimeout("location.reload(true);", time);
+    }
+    async function ocjeniEvent() {
+        let recenziran = {
+            "IdKorisnikEvent": parseInt(document.getElementById("id").value),
+            "Event": parseInt(document.getElementById("idEv").value),
+            "Korisnik": parseInt(document.getElementById("kor").value),
+            "Potvrdeno": null,
+            "Recenzija": parseInt(document.getElementById("unesiOcj").value)
+        }
+        axios.put("/api/korisnik/editvezu", recenziran);
+        timedRefresh(500);
+    }
+    function podnesiOcjenu(id, ev, kor) {
+        let forma = document.getElementById("podnesi");
+        if (forma.style.display === "none") {
+            forma.style.display = "block";
+            document.getElementById("id").value = id;
+            document.getElementById("idEv").value = ev;
+            document.getElementById("kor").value = kor;
+        }
+    }
+    function insertIntoCell(cell1, data) {
+        cell1.innerHTML = data.naziv;
+        
+    }
+    function CreateRow(id, event, korisnik, potvrdeno, recenzija) {
+        let tablica = document.getElementById('tbody');
+        let row = tablica.insertRow();
+        let stupac_id = row.insertCell();
+        let stupac_naziv = row.insertCell();
+        let stupac_potvrdeno = row.insertCell();
+        let potvrda;
+        if (potvrdeno == null) {
+            potvrda = "Ne treba potvrda";
+        }
+        else if (potvrdeno == true) {
+            potvrda = "JE";
+        }
+        else { potvrda = "NIJE"; }
+        stupac_id.innerHTML = id;
+        axios.get(`/api/korisnik/${event}`, event).then(resolve => insertIntoCell(stupac_naziv, resolve.data))
+        stupac_potvrdeno.innerHTML = potvrda;
+        if (recenzija != null) {
+            let stupac_DanaOcjena = row.insertCell();
+            let ispisiZvjezdice;
+            if (recenzija == 1) { ispisiZvjezdice = "&#9733 &#9734 &#9734 &#9734 &#9734"; }
+            else if (recenzija == 2) { ispisiZvjezdice = "&#9733 &#9733 &#9734 &#9734 &#9734"; }
+            else if (recenzija == 3) { ispisiZvjezdice = "&#9733 &#9733 &#9733 &#9734 &#9734"; }
+            else if (recenzija == 4) { ispisiZvjezdice = "&#9733 &#9733 &#9733 &#9733 &#9734"; }
+            else { ispisiZvjezdice = "&#9733 &#9733 &#9733 &#9733 &#9733"; }
+            stupac_DanaOcjena.innerHTML = ispisiZvjezdice;
+        }
+        else {
+            let stupac_podnesiOcjenu = row.insertCell();
+            stupac_podnesiOcjenu.innerHTML = `<button type="button" class="btn btn-outline-dark btn-lg" onclick="podnesiOcjenu(${id}, ${event}, ${korisnik})">Ocjeni</button>`;
+        }
+    }
+    axios.get('/api/korisnik/eventizaocjenu').then(response => appendToTable(response.data))
+</script>

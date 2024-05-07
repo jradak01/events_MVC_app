@@ -1,0 +1,77 @@
+﻿<p style="padding-left: 10px; color: gray;">Prijavljeni ste kao admin: @ViewBag.Admin</p>
+<div class="table-responsive-sm">
+    <table class="table-light table-hover table-responsive-md col-md-12 flex-md-grow-1" id="ispis">
+        <thead style="height: 40px;">
+        <th>Id</th>
+        <th>Naziv</th>
+        <th>Vrijeme</th>
+        <th>Mjesto</th>
+        <th>Adresa</th>
+        <th>Cijena</th>
+        <th>Ograniceni Posjetitelji</th>
+        <th>Vrsta Eventa</th>
+        <th>Organizator</th>
+        </thead>
+        <tbody id="tbody">
+        </tbody>
+    </table>
+</div>
+<script type="text/javascript">
+    'use strict';
+    
+    function appendToTable(data) {
+        console.log(data);
+        for (var i = 0; i < data.length; i++) {
+            let event_ = data[i];
+            console.log(event_);
+            CreateRow(event_.idEvent, event_.naziv, event_.vrijeme, event_.mjesto, event_.adresa, event_.cijena, event_.ograniceniPosjetitelji, event_.vrstaEventa, event_.organizator);
+        }
+    }
+
+    function brisi(event_) {
+
+        if (confirm('Jeste li sigurni da želite obrisati event?')) {
+            var i = event_.parentNode.parentNode.rowIndex;
+            var red = event_.parentNode.parentNode;
+            var Id = red.firstChild.innerHTML;
+            document.getElementById("ispis").deleteRow(i);
+            axios.delete(`/api/admin/brisanjeeventa/${Id}`, Id);
+        }
+    }
+
+    function insertIntoCell(cell, data) {
+        cell.innerHTML = data.naziv;
+    }
+    function insertIntoCellOrg(cell, data) {
+        cell.innerHTML = data.korisnickoIme;
+    }
+
+    function CreateRow(id, naziv, vrijeme, mjesto, adresa, cijena, ograniceniPosjetitelji, vrstaEventa, organizator) {
+        let tablica = document.getElementById('tbody');
+        let row = tablica.insertRow();
+        let stupac_id = row.insertCell();
+        let stupac_naziv = row.insertCell();
+        let stupac_vrijeme = row.insertCell();
+        let stupac_mjesto = row.insertCell();
+        let stupac_adresa = row.insertCell();
+        let stupac_cijena = row.insertCell();
+        let stupac_ograniceniPosjetitelji = row.insertCell();
+        let stupac_vrstaEventa = row.insertCell();
+        let stupac_organizator = row.insertCell();
+        let stupac_brisi = row.insertCell();
+        let ogr;
+        if (ograniceniPosjetitelji == true) { ogr = "DA"; }
+        else { ogr = "NE";}
+        stupac_id.innerHTML = id;
+        stupac_naziv.innerHTML = naziv;
+        stupac_vrijeme.innerHTML = vrijeme;
+        axios.get(`/api/admin/mjesto/${mjesto}`, mjesto).then(resolve => insertIntoCell(stupac_mjesto, resolve.data))
+        stupac_adresa.innerHTML = adresa;
+        stupac_cijena.innerHTML = cijena;
+        stupac_ograniceniPosjetitelji.innerHTML = ogr;
+        axios.get(`/api/admin/vrsta/${vrstaEventa}`, vrstaEventa).then(resolve => insertIntoCell(stupac_vrstaEventa, resolve.data))
+        axios.get(`/api/admin/korisnik/${organizator}`, organizator).then(resolve => insertIntoCellOrg(stupac_organizator, resolve.data))
+        stupac_brisi.innerHTML = '<button type="button" class="btn btn-outline-dark btn-lg" onclick="brisi(this)">Briši</button>';
+    }
+    axios.get('/api/admin/svieventi').then(response => appendToTable(response.data))
+</script>

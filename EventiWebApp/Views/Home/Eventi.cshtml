@@ -1,0 +1,61 @@
+﻿
+<div class="table-responsive-sm">
+    <table class="table-light table-hover table-responsive-md col-md-12 flex-md-grow-1" id="ispis">
+        <thead style="height: 40px;">
+        <th>Naziv</th>
+        <th>Vrijeme</th>
+        <th>Mjesto</th>
+        <th>Adresa</th>
+        <th>Cijena</th>
+        <th>Ograniceni Posjetitelji</th>
+        <th>Vrsta Eventa</th>
+        <th>Organizator</th>
+        </thead>
+        <tbody id="tbody">
+        </tbody>
+    </table>
+</div>
+<script type="text/javascript">
+    'use strict';
+    function appendToTable(data) {
+        console.log(data);
+        for (var i = 0; i < data.length; i++) {
+            let event_ = data[i];
+            console.log(event_);
+            CreateRow(event_.naziv, event_.vrijeme, event_.mjesto, event_.adresa, event_.cijena, event_.ograniceniPosjetitelji, event_.vrstaEventa, event_.organizator);
+        }
+    }
+    function insertIntoCell(cell, data) {
+        cell.innerHTML = data.naziv;
+    }
+    function insertIntoCellOrg(cell, data) {
+        cell.innerHTML = data.korisnickoIme;
+    }
+    function CreateRow(naziv, vrijeme, mjesto, adresa, cijena, ograniceniPosjetitelji, vrstaEventa, organizator) {
+        let tablica = document.getElementById('tbody');
+        let row = tablica.insertRow();
+        let stupac_naziv = row.insertCell();
+        let stupac_vrijeme = row.insertCell();
+        let stupac_mjesto = row.insertCell();
+        let stupac_adresa = row.insertCell();
+        let stupac_cijena = row.insertCell();
+        let stupac_ograniceniPosjetitelji = row.insertCell();
+        let stupac_vrstaEventa = row.insertCell();
+        let stupac_organizator = row.insertCell();
+
+        let ogr;
+        if (ograniceniPosjetitelji == true) { ogr = "DA"; }
+        else { ogr = "NE";}
+
+        stupac_naziv.innerHTML = naziv;
+        stupac_vrijeme.innerHTML = vrijeme;
+        axios.get(`/api/korisnik/mjesto/${mjesto}`, mjesto).then(resolve => insertIntoCell(stupac_mjesto, resolve.data))
+        stupac_adresa.innerHTML = adresa;
+        stupac_cijena.innerHTML = cijena;
+        axios.get(`/api/korisnik/vrsta/${vrstaEventa}`, vrstaEventa).then(resolve => insertIntoCell(stupac_vrstaEventa, resolve.data))
+        stupac_ograniceniPosjetitelji.innerHTML = ogr;
+        axios.get(`/api/korisnik/korisnik/${organizator}`, organizator).then(resolve => insertIntoCellOrg(stupac_organizator, resolve.data))
+    }
+    axios.get('/api/korisnik').then(response => appendToTable(response.data))
+    axios.get('/api/korisnik/svamjesta').then(response => appendToSelect(response.data))
+</script>

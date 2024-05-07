@@ -1,0 +1,88 @@
+﻿@using Microsoft.AspNetCore.Http
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+<p style="padding-left: 10px; color: gray;">Prijavljeni ste kao korisnik: @ViewBag.Korisnik</p>
+<form method="POST" enctype="multipart/form-data" style="display: none;" id="prijaviSe" asp-controller="Korisnik" asp-action="PrijaviEvent">
+    <table style="margin-left: 30%;">
+        <tr>
+            <td style="width: 140px; padding: 10px;"><input type="text" name="idEvent" id="unosPrijave" class="form-control"></td>
+            <td style="width: 100px; padding: 10px;"><input class="btn btn-outline-success btn-lg" type="submit" name="prijaviEvent" value="Dolazim" /></td>
+            <td style="width: 100px; padding: 10px;"><button type="button" class="btn btn-outline-danger btn-lg" onclick="odustani()">Odustajem</button></td>
+        </tr>
+    </table>
+</form>
+<br />
+<div class="table-responsive-sm">
+    <table class="table-light table-hover table-responsive-md col-md-12 flex-md-grow-1" id=" ispis">
+        <thead style="height: 40px;">
+            <th>Id</th>
+            <th>Naziv</th>
+            <th>Vrijeme</th>
+            <th>Mjesto</th>
+            <th>Adresa</th>
+            <th>Cijena</th>
+            <th>Vrsta Eventa</th>
+            <th>Ograniceni Posjetitelji</th>
+            <th>Organizator</th>
+        </thead>
+        <tbody id="tbody">
+        </tbody>
+    </table>
+</div>
+
+<script type="text/javascript">
+    'use strict';
+    function appendToTable(data) {
+        console.log(data);
+        for (var i = 0; i < data.length; i++) {
+            let event_ = data[i];
+            CreateRow(event_.idEvent, event_.naziv, event_.vrijeme, event_.mjesto, event_.adresa, event_.cijena, event_.ograniceniPosjetitelji, event_.vrstaEventa, event_.organizator);
+        }
+    }
+    function insertIntoCell(cell, data) {
+        cell.innerHTML = data.naziv;
+    }
+    function insertIntoCellOrg(cell, data) {
+        cell.innerHTML = data.korisnickoIme;
+    }
+
+    function odustani() {
+        let forma = document.getElementById("prijaviSe");
+        forma.style.display = "none";
+    }
+    function PrikaziZaOcjenu(potrebni) {
+        let forma = document.getElementById("prijaviSe");
+        if (forma.style.display === "none") {
+            forma.style.display = "block";
+            document.getElementById("unosPrijave").value = potrebni;
+        }
+    }
+    function CreateRow(id, naziv, vrijeme, mjesto, adresa, cijena, ograniceniPosjetitelji, vrstaEventa, organizator) {
+        let tablica = document.getElementById('tbody');
+        let row = tablica.insertRow();
+        let stupac_id = row.insertCell();
+        let stupac_naziv = row.insertCell();
+        let stupac_vrijeme = row.insertCell();
+        let stupac_mjesto = row.insertCell();
+        let stupac_adresa = row.insertCell();
+        let stupac_cijena = row.insertCell();
+        let stupac_vrstaEventa = row.insertCell();
+        let stupac_ograniceniPosjetitelji = row.insertCell();
+        let stupac_organizator = row.insertCell();
+        let stupac_prijaviSe = row.insertCell();
+        let ogr;
+        if (ograniceniPosjetitelji == true) { ogr = "DA"; }
+        else { ogr = "NE"; }
+        stupac_id.innerHTML = id;
+        stupac_naziv.innerHTML = naziv;
+        stupac_vrijeme.innerHTML = vrijeme;
+        axios.get(`/api/korisnik/mjesto/${mjesto}`, mjesto).then(resolve => insertIntoCell(stupac_mjesto, resolve.data))
+        stupac_adresa.innerHTML = adresa;
+        stupac_cijena.innerHTML = cijena;
+        stupac_ograniceniPosjetitelji.innerHTML = ogr;
+        axios.get(`/api/korisnik/vrsta/${vrstaEventa}`, vrstaEventa).then(resolve => insertIntoCell(stupac_vrstaEventa, resolve.data))
+        axios.get(`/api/korisnik/korisnik/${organizator}`, organizator).then(resolve => insertIntoCellOrg(stupac_organizator, resolve.data))
+        stupac_prijaviSe.innerHTML = `<button type="button" class="btn btn-outline-dark btn-lg" onclick="PrikaziZaOcjenu(${id})">Dodaj</button>`;
+    }
+    axios.get('api/korisnik').then(response => appendToTable(response.data))
+</script>

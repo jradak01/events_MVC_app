@@ -1,0 +1,47 @@
+USE Eventi_pma
+
+--delete from dbo.Korisnici where ID_Korisnik=1;
+--delete from dbo.Korisnici where ID_Korisnik=2;
+
+DBCC CHECKIDENT("dbo.Mjesta",reseed,0)
+insert into dbo.Mjesta(Naziv) values ('Osijek');
+insert into dbo.Mjesta(Naziv) values ('Solin');
+insert into dbo.Mjesta(Naziv) values ('Trogir');
+insert into dbo.Mjesta(Naziv) values ('Dubrovnik');
+insert into dbo.Mjesta(Naziv) values ('Split');
+insert into dbo.Mjesta(Naziv) values ('Zagreb');
+insert into dbo.Mjesta(Naziv) values ('Kaštela');
+insert into dbo.Mjesta(Naziv) values ('Omiš');
+insert into dbo.Mjesta(Naziv) values ('Rijeka');
+insert into dbo.Mjesta(Naziv) values ('Pula');
+insert into dbo.Mjesta(Naziv) values ('Omiš');
+
+DBCC CHECKIDENT("dbo.VrsteEventa",reseed,0)
+insert into dbo.VrsteEventa(Naziv) values ('Techno Party');
+insert into dbo.VrsteEventa(Naziv) values ('Koncert');
+insert into dbo.VrsteEventa(Naziv) values ('Filmska večer');
+insert into dbo.VrsteEventa(Naziv) values ('Rock party');
+insert into dbo.VrsteEventa(Naziv) values ('Festival');
+
+DBCC CHECKIDENT("dbo.Korisnici",reseed,0)
+insert into dbo.Korisnici(Ime, Prezime, KorisnickoIme, Lozinka, Email, Admin_) values ('Ante','Antić','ante123', '12345678', 'ante123@gmail.com', 'True');
+insert into dbo.Korisnici(Ime, Prezime, KorisnickoIme, Lozinka, Email, Admin_) values ('Marija','Marijić','marija123', '12345678', 'marija123@gmail.com', 'True');
+insert into dbo.Korisnici(Ime, Prezime, KorisnickoIme, Lozinka, Email, Admin_) values ('Luka','Lukić','luka123', '12345678', 'luka123@gmail.com', 'False');
+insert into dbo.Korisnici(Ime, Prezime, KorisnickoIme, Lozinka, Email, Admin_) values ('Petar','Perić','petar123', '12345678', 'petar123@gmail.com', 'False');
+insert into dbo.Korisnici(Ime, Prezime, KorisnickoIme, Lozinka, Email, Admin_) values ('Ivan','Ivić','ivan123', '12345678', 'ivan123@gmail.com', 'False');
+insert into dbo.Korisnici(Ime, Prezime, KorisnickoIme, Lozinka, Email, Admin_) values ('Marko','Markić','marko123', '12345678', 'marko123@gmail.com', 'False');
+
+DBCC CHECKIDENT("dbo.Eventi",reseed,0)
+insert into Eventi(Naziv, Vrijeme, Mjesto, Adresa, Cijena, VrstaEventa, Organizator, OgraniceniPosjetitelji) values ('Koncert Jelene Rozge', '2021-08-10 20:30:00', 1, 'Trg Ljudevita Gaja', '150kn', 2, 3, 'True');
+insert into Eventi(Naziv, Vrijeme, Mjesto, Adresa, Cijena, VrstaEventa, Organizator, OgraniceniPosjetitelji) values ('Večer Vesterna', '2021-08-07 19:30:00', 5, 'Plaža Bačvice', 'Besplatno', 3, 4, 'False');
+insert into Eventi(Naziv, Vrijeme, Mjesto, Adresa, Cijena, VrstaEventa, Organizator, OgraniceniPosjetitelji) values ('Večer Horora', '2021-08-08 19:30:00', 5, 'Plaža Bačvice', 'Besplatno', 3, 4, 'False');
+insert into Eventi(Naziv, Vrijeme, Mjesto, Adresa, Cijena, VrstaEventa, Organizator, OgraniceniPosjetitelji) values ('Večer Akcijskih Filmova', '2021-08-09 19:30:00', 5, 'Plaža Bačvice', 'Besplatno', 3, 4, 'False');
+insert into Eventi(Naziv, Vrijeme, Mjesto, Adresa, Cijena, VrstaEventa, Organizator, OgraniceniPosjetitelji) values ('Večer SciFi Filmova', '2021-07-21 19:30:00', 5, 'Plaža Bačvice', 'Besplatno', 3, 4, 'False');
+
+DBCC CHECKIDENT("dbo.KorisnikEvent",reseed,0)
+insert into KorisnikEvent(Event_, Korisnik, Potvrdeno, Recenzija) values (2, 5, 'True', null);
+insert into KorisnikEvent(Event_, Korisnik, Potvrdeno, Recenzija) values (3, 5, 'True', null);
+insert into KorisnikEvent(Event_, Korisnik, Potvrdeno, Recenzija) values (4, 5, null, null);
+insert into KorisnikEvent(Event_, Korisnik, Potvrdeno, Recenzija) values (5, 5, 'True', 5);
+insert into KorisnikEvent(Event_, Korisnik, Potvrdeno, Recenzija) values (5, 6, 'True', null);
+insert into KorisnikEvent(Event_, Korisnik, Potvrdeno, Recenzija) values (5, 3, 'False',1);

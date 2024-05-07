@@ -1,0 +1,106 @@
+﻿<!DOCTYPE html>
+@using Microsoft.AspNetCore.Http
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - EventiWebApp</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+
+    <script src="~/lib/axios.min.js"></script>
+    <script src="~/lib/pmf_lib.js"></script>
+
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container">
+                @if (HttpContextAccessor.HttpContext.Session.GetString("Admin") == "True")
+                {
+                    <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Eventi">Eventi</a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                        <ul class="navbar-nav flex-grow-1">
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Korisnici">Korisnici</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Mjesta">Mjesta</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Vrste">Vrste Eventa</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <form class="form-inline my-2 my-lg-0">
+                        <a class="btn btn-outline-secondary my-2 my-sm-0" asp-area="" asp-controller="Prijava" asp-action="Odjava">Odjava</a>
+                    </form>
+                }
+                else if (HttpContextAccessor.HttpContext.Session.GetString("Admin") == "False")
+                {
+                    <a class="nav-link text-dark" asp-area="" asp-controller="Korisnik" asp-action="Eventi">Eventi</a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                        <ul class="navbar-nav flex-grow-1">
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Korisnik" asp-action="KreirajEvent">Kreiraj Event</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Korisnik" asp-action="MojiEventi">Moji Eventi</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Korisnik" asp-action="EventiZaOcjenu">Ocjeni Event</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Korisnik" asp-action="DopustiNaMojEvent">Dopuštenja</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <form class="form-inline my-2 my-lg-0">
+                        <a class="btn btn-outline-secondary my-2 my-sm-0" asp-area="" asp-controller="Prijava" asp-action="Odjava">Odjava</a>
+                    </form>
+                }
+                else
+                {
+                    <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                        <ul class="navbar-nav flex-grow-1">
+                            <a class="btn my-2-my-sm-0" asp-area="" asp-controller="Home" asp-action="Eventi">Eventi</a>
+                        </ul>
+                    </div>
+                    <form class="form-inline my-2 my-lg-0">
+                        <a class="btn btn-outline-secondary my-2 my-sm-0" asp-area="" asp-controller="Prijava" asp-action="Prijava">Prijava</a>
+                    </form>
+                }
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted position-fixed" style="background-color: orange;">
+        <div class="container">
+            &copy; 2021 - EventiWebApp - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+        </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

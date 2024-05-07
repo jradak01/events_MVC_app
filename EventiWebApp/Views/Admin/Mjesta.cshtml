@@ -1,0 +1,75 @@
+﻿<a class="btn btn-outline-secondary my-2 my-sm-0" asp-area="" asp-controller="Admin" asp-action="KreirajMjesto">Dodaj mjesto</a>
+<br />
+<form id="podnesi" style="display: none;">
+    <table style="margin-left: 30%;">
+        <td style="width: 140px; padding: 10px;"><input type="text" id="id" class="form-control" disabled></td>
+        <td style="width: 140px; padding: 10px;"><input type="text" id="nazivMjesta" class="form-control"></td>
+        <td style="width: 100px; padding: 10px;"><input class="btn btn-outline-success btn-lg" type="button" onclick="promijeniNaziv()" value="Uredi" /></td>
+        <td style="width: 140px; padding: 10px;"><button type="button" class="btn btn-outline-danger btn-lg" onclick="odustani()">Odustajem</button></td>
+    </table>
+</form>
+<div class="table-responsive-sm">
+    <table class="table-light table-hover table-responsive-md col-md-12 flex-md-grow-1" id="ispis">
+        <thead style="height: 40px;">
+            <th>Id</th>
+            <th>Naziv</th>
+        </thead>
+        <tbody id="tbody">
+        </tbody>
+    </table>
+</div>
+<script type="text/javascript">
+    'use strict';
+    function brisi(mjesto) {
+
+        if (confirm('Jeste li sigurni da želite obrisati event?')) {
+            var i = mjesto.parentNode.parentNode.rowIndex;
+            var red = mjesto.parentNode.parentNode;
+            var Id = red.firstChild.innerHTML;
+            document.getElementById("ispis").deleteRow(i);
+            axios.delete(`/api/admin/brisanjemjesta/${Id}`, Id);
+        }
+    }
+    function odustani() {
+        let forma = document.getElementById("podnesi");
+        forma.style.display = "none";
+    }
+    function appendToTable(data) {
+        console.log(data);
+        for (var i = 0; i < data.length; i++) {
+            let mjesto = data[i];
+            CreateRow(mjesto.idMjesto, mjesto.naziv);
+        }
+    }
+    function timedRefresh(time) {
+        setTimeout("location.reload(true);", time);
+    }
+    async function promijeniNaziv() {
+        let promjenjenoMjesto = {
+            "IdMjesto": parseInt(document.getElementById("id").value),
+            "naziv": document.getElementById("nazivMjesta").value
+        }
+        axios.put("/api/admin/mjestoedit", promjenjenoMjesto);
+        timedRefresh(500);
+    }
+    function urediMjesto(id) {
+        let forma = document.getElementById("podnesi");
+        if (forma.style.display == "none") {
+            forma.style.display = "block";
+            document.getElementById("id").value = id;
+        }
+    }
+    function CreateRow(id, naziv) {
+        let tablica = document.getElementById('tbody');
+        let row = tablica.insertRow();
+        let stupac_id = row.insertCell();
+        let stupac_naziv = row.insertCell();
+        let stupac_uredi = row.insertCell();
+        let stupac_brisi = row.insertCell();
+        stupac_id.innerHTML = id;
+        stupac_naziv.innerHTML = naziv;
+        stupac_uredi.innerHTML = `<button type="button" class="btn btn-outline-dark btn-lg" onclick="urediMjesto(${id})">Uredi</button>`;
+        stupac_brisi.innerHTML = '<button type="button" class="btn btn-outline-dark btn-lg" onclick="brisi(this)">Briši</button>';
+    }
+    axios.get('/api/admin/svamjesta').then(response => appendToTable(response.data))
+</script>

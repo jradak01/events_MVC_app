@@ -1,0 +1,131 @@
+﻿@using Microsoft.AspNetCore.Http
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+<h1>Dopusti pristup na event</h1>
+<select class="form-control" id="odabirEventa" onchange="OnSelect()">
+</select>
+<form id="podnesi" style="display: none;">
+    <table style="margin-left: 30%;">
+        <td style="width: 140px; padding: 10px;"><input type="text" id="id" class="form-control" disabled></td>
+        <td style="width: 140px; padding: 10px;"><input type="text" id="idEv" class="form-control" disabled></td>
+        <td style="width: 140px; padding: 10px;"><input type="text" id="kor" class="form-control" disabled></td>
+        <td style="width: 180px; padding: 10px;">
+            <select class="form-control" id="odaberi">
+                <option value="True">Dozvoli</option>
+                <option value="False">Nemoj Dozvoliti</option>
+            </select>
+        </td>
+        <td style="width: 140px; padding: 10px;"><input type="number" id="unesiOcj" min="1" max="5" class="form-control" disabled></td>
+        <td style="width: 100px; padding: 10px;"><input class="btn btn-outline-success btn-lg" type="button" onclick="potvrdiEvent()" value="Dozvoli" /></td>
+        <td style="width: 140px; padding: 10px;"><button type="button" class="btn btn-outline-danger btn-lg" onclick="odustani()">Odustajem</button></td>
+    </table>
+</form>
+<div class="table-responsive-sm">
+    <table class="table-light table-hover table-responsive-md col-md-12 flex-md-grow-1" id="ispis">
+        <thead id="thead">
+            <th>Id</th>
+            <th>Naziv</th>
+            <th>Korisnik</th>
+            <th>Ocjena</th>
+            <th>Potvrdi</th>
+        </thead>
+        <tbody id="tbody">
+        </tbody>
+    </table>
+</div>
+<script type="text/javascript">
+    function OnSelect() {
+        for (var i = document.getElementById("tbody").rows.length; i > 0; i--) {
+            document.getElementById("tbody").deleteRow(i - 1);
+        }
+        axios.get('/api/korisnik/eventizaocjenu').then(response => appendToTable(response.data))
+    }
+    function appendToSelect(data) {
+        for (var i = 0; i < data.length; i++) {
+            let event_ = data[i];
+            if (@(HttpContextAccessor.HttpContext.Session.GetString("Id")) == event_.organizator) {
+                var select = document.getElementById("odabirEventa");
+                var option = document.createElement("option");
+                option.value = event_.idEvent;
+                option.text = event_.naziv;
+                console.log(option.value);
+                select.add(option);
+            }
+        }
+    }
+    function appendToTable(data) {
+        for (var i = 0; i < data.length; i++) {
+            var korisnikEvent = data[i];
+            var x = document.getElementById("odabirEventa").value;
+            var y = parseInt(x);
+            if (y == korisnikEvent.event) {
+                console.log(y+" "+korisnikEvent.event);
+                CreateRow(korisnikEvent.idKorisnikEvent, korisnikEvent.event, korisnikEvent.korisnik, korisnikEvent.recenzija);
+            }
+        }
+    }
+    function odustani() {
+        let forma = document.getElementById("podnesi");
+        forma.style.display = "none";
+    }
+    function timedRefresh(time) {
+        setTimeout("location.reload(true);", time);
+    }
+    async function potvrdiEvent() {
+        let odabrano = document.getElementById("odaberi").value;
+        let odabir;
+
+        if (odabrano == "True") { odabir = true; }
+        else { odabir = false;}
+
+        let odobren = {
+            "IdKorisnikEvent": parseInt(document.getElementById("id").value),
+            "Event": parseInt(document.getElementById("idEv").value),
+            "Korisnik": parseInt(document.getElementById("kor").value),
+            "Potvrdeno": odabir,
+            "Recenzija": parseInt(document.getElementById("unesiOcj").value)
+        }
+        axios.put("/api/korisnik/editvezu", odobren);
+        timedRefresh(500);
+    }
+    function podnesiDopustenje(id, ev, kor, ocj) {
+        let forma = document.getElementById("podnesi");
+        if (forma.style.display === "none") {
+            forma.style.display = "block";
+            document.getElementById("id").value = id;
+            document.getElementById("idEv").value = ev;
+            document.getElementById("kor").value = kor;
+            document.getElementById("unesiOcj").value = ocj;
+        }
+    }
+    function insertIntoCell(cell1, data) {
+        cell1.innerHTML = data.naziv;
+    }
+    function insertIntoCellKorisnik(cell1, data) {
+        cell1.innerHTML = data.korisnickoIme;
+    }
+    function CreateRow(id, event, korisnik, recenzija) {
+        let tablica = document.getElementById('tbody');
+        let row = tablica.insertRow();
+        let stupac_id = row.insertCell();
+        let stupac_naziv = row.insertCell();
+        let stupac_korisnik = row.insertCell();
+        let stupac_ocjena = row.insertCell();
+        let stupac_potvrdi = row.insertCell();
+        let ispisiZvjezdice;
+        if (recenzija != null) {
+            if (recenzija == 1) { ispisiZvjezdice = "&#9733 &#9734 &#9734 &#9734 &#9734"; }
+            else if (recenzija == 2) { ispisiZvjezdice = "&#9733 &#9733 &#9734 &#9734 &#9734"; }
+            else if (recenzija == 3) { ispisiZvjezdice = "&#9733 &#9733 &#9733 &#9734 &#9734"; }
+            else if (recenzija == 4) { ispisiZvjezdice = "&#9733 &#9733 &#9733 &#9733 &#9734"; }
+            else { ispisiZvjezdice = "&#9733 &#9733 &#9733 &#9733 &#9733"; }
+        }
+        else { ispisiZvjezdice = recenzija; }
+        stupac_id.innerHTML = id;
+        axios.get(`/api/korisnik/korisnik/${korisnik}`, korisnik).then(response => insertIntoCellKorisnik(stupac_korisnik, response.data))
+        axios.get(`/api/korisnik/${event}`, event).then(response => insertIntoCell(stupac_naziv, response.data))
+        stupac_ocjena.innerHTML = ispisiZvjezdice;
+        stupac_potvrdi.innerHTML =`<button type = "button" class="btn btn-outline-dark btn-lg" onclick = "podnesiDopustenje(${id}, ${event}, ${korisnik}, ${recenzija})">Dopusti</button >`;
+
+    }
+    axios.get('api/korisnik').then(response => appendToSelect(response.data))
+</script>
