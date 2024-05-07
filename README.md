@@ -27,5 +27,3 @@ SQL
 
 ![Create Event](https://github.com/jradak01/events_MVC_app/blob/main/images/Slika11.png)
 
-
-https://github.com/jradak01/events_MVC_app/blob/main/images/Slika11.png
